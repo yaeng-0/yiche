@@ -319,6 +319,15 @@
         </div>
       </div>
 
+      <div class="field" style="margin-top:16px">
+        <label class="field-label" for="inp-shorturl">短链接 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-hint)">（可选，填后二维码更小更快）</span></label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          <input id="inp-shorturl" type="url" placeholder="例：https://t.ly/xxxx（不填则用当前页面地址）" autocomplete="off">
+        </div>
+        <div style="font-size:12px;color:var(--text-hint);margin-top:6px;padding-left:2px">免费短链：<a href="https://t.ly" target="_blank" style="color:var(--green);text-decoration:none">t.ly</a> 或 <a href="https://s.id" target="_blank" style="color:var(--green);text-decoration:none">s.id</a>，把 GitHub Pages 地址粘进去得到短链，填到这里</div>
+      </div>
+
       <div class="notice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <p>手机号<strong>不会</strong>写入二维码，扫码方仅看到隐藏中间四位的号码（如 138 **** 5678），真实号码仅在点击拨号时调用手机系统拨出。</p>
@@ -487,12 +496,10 @@ function generateQR() {
 
   document.getElementById('display-plate').textContent = _plate;
 
-  // Build scan URL: encode phone with simple reversible obfuscation (XOR key)
-  // This keeps the phone out of plaintext in the URL
   const key = 37;
   const encoded = btoa(phone.split('').map(c => (c.charCodeAt(0) ^ key).toString(16).padStart(2,'0')).join(''));
-  const pageUrl = location.href.split('?')[0];
-  const scanUrl = pageUrl + '?v=1&plate=' + encodeURIComponent(_plate) + '&c=' + encodeURIComponent(encoded);
+  const baseUrl = (document.getElementById('inp-shorturl').value.trim().replace(/\/?$/, '') ) || location.href.split('?')[0];
+  const scanUrl = baseUrl + '?v=1&plate=' + encodeURIComponent(_plate) + '&c=' + encodeURIComponent(encoded);
 
   const qrEl = document.getElementById('qrcode');
   qrEl.innerHTML = '';
@@ -503,7 +510,7 @@ function generateQR() {
     height: 220,
     colorDark: '#1a1a1a',
     colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
+    correctLevel: QRCode.CorrectLevel.L
   });
 
   _qrGenerated = true;
